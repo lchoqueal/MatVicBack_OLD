@@ -41,9 +41,9 @@ Creamos los siguientes Value Objects para reemplazar primitivos:
 #### `Precio` (domain/valueObjects/Precio.js)
 - **Propósito**: Encapsular un valor monetario con validación
 - **Propiedades**:
-  - ✅ Inmutable: no cambia después de crearse
-  - ✅ Validado: rechaza valores negativos
-  - ✅ Comparable por valor: dos Precios con igual monto son idénticos
+  -  Inmutable: no cambia después de crearse
+  -  Validado: rechaza valores negativos
+  -  Comparable por valor: dos Precios con igual monto son idénticos
 - **Métodos**:
   - `sumar(otroPrecio)`: suma dos precios
   - `multiplicar(cantidad)`: multiplica por una cantidad
@@ -52,9 +52,9 @@ Creamos los siguientes Value Objects para reemplazar primitivos:
 #### `Cantidad` (domain/valueObjects/Cantidad.js)
 - **Propósito**: Encapsular una cantidad de productos
 - **Propiedades**:
-  - ✅ Inmutable
-  - ✅ Validada: solo acepta enteros positivos (> 0)
-  - ✅ Comparable por valor
+  -  Inmutable
+  -  Validada: solo acepta enteros positivos (> 0)
+  -  Comparable por valor
 - **Métodos**:
   - `sumar()`, `restar()`: operaciones aritméticas
   - Comparadores: `esIgual()`, `esMayorQue()`, `esMenorOIgualQue()`, etc.
@@ -62,9 +62,9 @@ Creamos los siguientes Value Objects para reemplazar primitivos:
 #### `Email` (domain/valueObjects/Email.js)
 - **Propósito**: Validar y encapsular direcciones de correo
 - **Propiedades**:
-  - ✅ Inmutable
-  - ✅ Validada: verifica formato de email con regex
-  - ✅ Comparable por valor
+  -  Inmutable
+  -  Validada: verifica formato de email con regex
+  -  Comparable por valor
 - **Métodos**:
   - `esIgual()`: compara direcciones
 
@@ -109,29 +109,29 @@ Creamos los siguientes Value Objects para reemplazar primitivos:
 
 Estos cambios aseguran:
 
-### ✅ Protección de Invariantes
+###  Protección de Invariantes
 Según "Implementing Domain-Driven Design" (Vernon, 2013), un agregado debe proteger sus invariantes. Ahora:
 - `new Precio(-100)` **lanza error** (antes: se aceptaba)
 - `new Cantidad(0)` **lanza error** (antes: se aceptaba)
 - `pedido.confirmar()` desde estado CANCELADO **lanza error** (antes: se hacía sin validar)
 
-### ✅ Coherencia de Datos
+###  Coherencia de Datos
 El invariante del total es verificado en cada construcción:
 ```javascript
 new Pedido(id, clienteId, empleadoId, items, ...);
 // Si los items no suman el total esperado → Error
 ```
 
-### ✅ Lenguaje Ubicuo (Ubiquitous Language)
+###  Lenguaje Ubicuo (Ubiquitous Language)
 Los nombres reflejan el dominio, no implementación técnica:
 - `confirmar()` en vez de `setEstado('confirmado')`
 - `agregarNota()` en vez de `actualizarNota()`
 - `Precio` en vez de `double`
 
-### ✅ Facilita Evolución
+###  Facilita Evolución
 Si mañana cambia la regla de cálculo de precios (ej. aplicar impuestos), solo cambiamos `Precio`. Todos los lugares que usan `Precio` automáticamente adoptan el nuevo comportamiento.
 
-### ✅ Testabilidad
+###  Testabilidad
 Es mucho más fácil hacer unit tests:
 ```javascript
 const precio = new Precio(100);
@@ -143,15 +143,15 @@ expect(precio.multiplicar(cantidad.valor).monto).toBe(300);
 
 ## Alternativas Consideradas
 
-### ❌ Mantener la arquitectura actual (Anémica)
+###  Mantener la arquitectura actual (Anémica)
 - **Problema**: Continuar con reglas de negocio dispersas en controladores
 - **Riesgo**: Inconsistencias de datos y bugs difíciles de rastrear
 
-### ❌ Usar solo value objects sin agregados
+###  Usar solo value objects sin agregados
 - **Problema**: No habría punto único de verdad para reglas como "estado del pedido"
 - **Riesgo**: Múltiples formas de crear un pedido válido/inválido
 
-### ❌ Usar Agregados muy grandes (todo en Pedido)
+###  Usar Agregados muy grandes (todo en Pedido)
 - **Problema**: Causaría contentiones en concurrencia
 - **Riesgo**: Bloqueos de base de datos al actualizar
 
@@ -159,44 +159,16 @@ expect(precio.multiplicar(cantidad.valor).monto).toBe(300);
 
 ## Consecuencias
 
-### Positivas ✅
+### Positivas 
 1. **Código más mantenible**: Lógica centralizada en el dominio
 2. **Menos bugs**: Validaciones tempranas y constantes
 3. **Más testeable**: Fácil crear casos de prueba
 4. **Escalable**: Estructura clara para nuevas reglas
 
-### Negativas ⚠️
+### Negativas 
 1. **Inicialmente más código**: Más clases, pero cada una con responsabilidad clara
 2. **Curva de aprendizaje**: El equipo necesita entender DDD
 3. **Migración**: El código existente que usa modelos debe adaptarse
-
----
-
-## Plan de Implementación
-
-**Fase 1 (Completada):**
-- ✅ Crear Value Objects: `Precio`, `Cantidad`, `Email`
-- ✅ Crear Aggregate Root: `Pedido` con `ItemPedido`
-- ✅ Documentar decisiones (este ADR)
-
-**Fase 2 (Próxima):**
-- [ ] Adaptar `orderController.js` para usar `Pedido`
-- [ ] Crear repositorio de pedidos (`PedidoRepository`)
-- [ ] Tests unitarios para Value Objects y Agregado
-
-**Fase 3 (Futuro):**
-- [ ] Aplicar mismo patrón a `Usuario/Cliente` y `Producto`
-- [ ] Introducir eventos de dominio (Domain Events)
-- [ ] Implementar consistencia eventual entre agregados
-
----
-
-## Métricas de Éxito
-
-- [ ] `Pedido` encapsula toda la lógica de pedidos (0 validaciones en controladoras)
-- [ ] 100% de tests verdes para Value Objects y Agregado
-- [ ] Cero bugs relacionados con inconsistencia de datos de pedidos
-- [ ] Tiempo de onboarding reducido (código expresa intención)
 
 ---
 

@@ -180,5 +180,5 @@ expect(precio.multiplicar(cantidad.valor).monto).toBe(300);
 
 ---
 
-**Aprobado por:** [Tu nombre]  
+**Aprobado por:** Luis Anthony de Jesus Choque Alfaro (Alias: El gran Lucho)
 **Fecha de aprobación:** 23 de Abril de 2026
